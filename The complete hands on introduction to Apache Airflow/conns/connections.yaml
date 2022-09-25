@@ -1,0 +1,15 @@
+# Apenas um arquivo para armazenar os dados das connections
+# que precisam ser criadas na UI do Airflow
+
+postgres:
+  is: postgres
+  type: Postgres
+  host: postgres
+  login: airflow
+  password: airflow
+  port: 5432
+
+user_api:
+  id: user_api
+  type: HTTP
+  host: https://randomuser.me/
