@@ -13,3 +13,10 @@ user_api:
   id: user_api
   type: HTTP
   host: https://randomuser.me/
+
+elastic_default:
+  id: elastic_default
+  type: HTTP
+  host: elastic
+  port: 9200
+j
