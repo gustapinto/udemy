@@ -1,0 +1,11 @@
+version: "3.6"
+
+services:
+  anaconda:
+    image: continuumio/anaconda3
+    ports:
+      - 8888:8888
+    volumes:
+      - ./:/data_analysis:Z
+    working_dir: /data_analysis
+    tty: true
