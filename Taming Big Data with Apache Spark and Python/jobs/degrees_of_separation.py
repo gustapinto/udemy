@@ -50,6 +50,8 @@ def map_bfs(node):
 
     results.append((character_id, (connections, distance, color)))
 
+    return results
+
 
 def reduce_bfs(data_1, data_2):
     edges_1, distance_1, color_1 = data_1
@@ -74,6 +76,13 @@ def reduce_bfs(data_1, data_2):
     if color_1 == 'white' and color_2 == 'black':
         color = color_2
 
+    if color_2 == 'white' and color_1 in ['gray', 'black']:
+        color = color_1
+
+    if color_2 == 'gray' and color_1 == 'black':
+        color = color_1
+
+    return (edges, distance, color)
 
 
 if __name__ == '__main__':
@@ -89,5 +98,16 @@ if __name__ == '__main__':
 
     rdd = spark.sparkContext.textFile('/app/datasets/Marvel_Graph.txt') \
                             .map(convert_to_bfs)
+
+    for i in range(0, 10):
+        mapped_rdd = rdd.flatMap(map_bfs)
+
+        print(f'Processing {mapped_rdd.count()} values')
+
+        if counter.value > 0:
+            print(f'Character found after {counter.value} directions')
+            break
+
+        rdd = mapped_rdd.reduceByKey(reduce_bfs)
 
     spark.stop()
