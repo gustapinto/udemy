@@ -1,0 +1,5 @@
+distlib==0.3.6
+filelock==3.8.2
+numpy==1.24.1
+platformdirs==2.5.4
+pyspark==3.3.1
