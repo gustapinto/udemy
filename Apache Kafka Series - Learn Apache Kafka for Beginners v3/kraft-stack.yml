@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+  kafka:
+    image: docker.io/bitnami/kafka:3.4
+    ports:
+      - 9092:9092
+    volumes:
+      - ./kafka_data:/bitnami:Z
+      - ./:/app:Z
+    environment:
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+
+  java:
+    image: gradle:jdk17
+    command: tail -f /dev/null
+    tty: true
+    volumes:
+      - ./app:/app:Z
+    working_dir: /app
+    environment:
+      KAFKA_BOOTSTRAP_SERVER: kafka:9092
