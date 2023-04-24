@@ -1,4 +1,4 @@
-package kafka.demos;
+package kafka.demos.producer;
 
 import java.util.Properties;
 
@@ -11,20 +11,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ProducerCallbackDemo {
-    private static final Logger logger = LoggerFactory.getLogger(ProducerDemo.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProducerCallbackDemo.class);
 
     public static void run(String[] args) {
         Properties properties = new Properties();
-
         properties.setProperty("bootstrap.servers", System.getenv("KAFKA_BOOTSTRAP_SERVER"));
-
         properties.setProperty("key.serializer", StringSerializer.class.getName());
         properties.setProperty("value.serializer", StringSerializer.class.getName());
 
         KafkaProducer<String, String> producer = new KafkaProducer<>(properties);
 
         for (int i = 0; i < 10; i++) {
-            ProducerRecord<String, String> producerRecord = new ProducerRecord<String,String>("foo_topic", "Mensagem " + i + "com callbacks!");
+            String value = "Mensagem " + i + "com callbacks!";
+
+            ProducerRecord<String, String> producerRecord = new ProducerRecord<String,String>("foo_topic", value);
 
             // Envia uma mensagem junto com uma callback
             producer.send(producerRecord, new Callback() {

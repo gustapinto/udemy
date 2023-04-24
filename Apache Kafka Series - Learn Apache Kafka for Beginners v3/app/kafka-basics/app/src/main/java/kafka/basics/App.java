@@ -5,9 +5,11 @@ package kafka.basics;
 
 import java.util.Arrays;
 
-import kafka.demos.ProducerCallbackDemo;
-import kafka.demos.ProducerDemo;
-import kafka.demos.ProducerKeysDemo;
+import kafka.demos.consumer.ConsumerDemo;
+import kafka.demos.consumer.ConsumerShutdownDemo;
+import kafka.demos.producer.ProducerCallbackDemo;
+import kafka.demos.producer.ProducerDemo;
+import kafka.demos.producer.ProducerKeysDemo;
 
 public class App {
     public static void main(String[] args) {
@@ -27,6 +29,14 @@ public class App {
 
                 case "producerKeys":
                     ProducerKeysDemo.run(runnerArgs);
+                    break;
+
+                case "consumer":
+                    ConsumerDemo.run(runnerArgs);
+                    break;
+
+                case "consumerShutdown":
+                    ConsumerShutdownDemo.run(runnerArgs);
                     break;
             }
         } catch (ArrayIndexOutOfBoundsException e) {

@@ -1,4 +1,4 @@
-package kafka.demos;
+package kafka.demos.producer;
 
 import java.util.Properties;
 
@@ -11,13 +11,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ProducerKeysDemo {
-    private static final Logger logger = LoggerFactory.getLogger(ProducerDemo.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProducerKeysDemo.class);
 
     public static void run(String[] args) {
         Properties properties = new Properties();
-
         properties.setProperty("bootstrap.servers", System.getenv("KAFKA_BOOTSTRAP_SERVER"));
-
         properties.setProperty("key.serializer", StringSerializer.class.getName());
         properties.setProperty("value.serializer", StringSerializer.class.getName());
 
