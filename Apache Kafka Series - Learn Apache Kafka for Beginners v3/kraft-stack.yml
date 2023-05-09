@@ -10,6 +10,8 @@ services:
       - ./:/app:Z
     environment:
       ALLOW_PLAINTEXT_LISTENER: "yes"
+    networks:
+      - app
 
   java:
     image: gradle:jdk17
@@ -20,23 +22,35 @@ services:
     working_dir: /app
     environment:
       KAFKA_BOOTSTRAP_SERVER: kafka:9092
+    networks:
+      - app
 
   opensearch:
     image: opensearchproject/opensearch:latest
     volumes:
       - ./opensearch_data:/usr/share/opensearch/data
     environment:
-      discovery.type: single-noe
+      discovery.type: single-node
       plugins.security.disabled: 'true'
       compatibility.override_main_response_version: 'true'
     ports:
       - 9200:9200
       - 9600:9600
+    networks:
+      - app
 
   opensearch-dashboards:
     image: opensearchproject/opensearch-dashboards:latest
     ports:
       - 5601:5601
     environment:
-      OPENSEARCH_HOSTS: '[http://opensearch:9200]'
+      OPENSEARCH_HOSTS: '["http://opensearch:9200"]'
       DISABLE_SECURITY_DASHBOARDS_PLUGIN: 'true'
+    depends_on:
+      - opensearch
+    networks:
+      - app
+
+networks:
+  app:
+    driver: bridge
