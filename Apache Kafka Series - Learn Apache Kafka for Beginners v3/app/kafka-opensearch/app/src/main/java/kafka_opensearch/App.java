@@ -3,12 +3,72 @@
  */
 package kafka_opensearch;
 
-public class App {
-    public String getGreeting() {
-        return "Hello World!";
-    }
+import java.time.Duration;
+import java.util.Arrays;
 
-    public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.opensearch.action.index.IndexRequest;
+import org.opensearch.action.index.IndexResponse;
+import org.opensearch.client.RequestOptions;
+import org.opensearch.client.RestHighLevelClient;
+import org.opensearch.client.indices.CreateIndexRequest;
+import org.opensearch.client.indices.GetIndexRequest;
+import org.opensearch.common.xcontent.XContentType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import kafka_opensearch.factories.KafkaConsumerFactory;
+import kafka_opensearch.factories.OpensearchRestHighLevelClientFactory;
+
+public class App {
+    public static final String OPENSEARCH_HOST = System.getenv("OPENSEARCH_HOST");
+    public static final String KAFKA_BOOTSTRAP_SERVER = System.getenv("KAFKA_BOOTSTRAP_SERVER");
+    public static final String OPENSEARCH_INDEX = "wikimedia";
+    public static final String KAFKA_TOPIC = "wikimedia.recentchange";
+
+    public static Logger logger = LoggerFactory.getLogger(App.class);
+
+    public static void main(String[] args) throws Exception {
+        RestHighLevelClient openSearchClient = OpensearchRestHighLevelClientFactory.make(OPENSEARCH_HOST);
+        KafkaConsumer<String, String> kafkaConsumer = KafkaConsumerFactory.make(OPENSEARCH_HOST, "java-app");
+
+        // Cria o indice caso ele não exista
+        //
+        // try (...) {} fecha todos os itens passados caso haja uma exceção
+        try (openSearchClient) {
+            GetIndexRequest getIndexRequest = new GetIndexRequest(OPENSEARCH_INDEX);
+            boolean indexAlreadyExists = openSearchClient.indices().exists(getIndexRequest, RequestOptions.DEFAULT);
+
+            if (!indexAlreadyExists) {
+                CreateIndexRequest createIndexRequest = new CreateIndexRequest(OPENSEARCH_INDEX);
+                openSearchClient.indices().create(createIndexRequest, RequestOptions.DEFAULT);
+                logger.info("Created Opensearch index");
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+
+        kafkaConsumer.subscribe(Arrays.asList(KAFKA_TOPIC));
+
+        while (true) {
+            ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofSeconds(1));
+            Integer recordsCount = records.count();
+
+            logger.info("Received " + recordsCount + " records");
+
+            for (ConsumerRecord<String, String> record : records) {
+                try {
+                    IndexRequest indexRequest = new IndexRequest(OPENSEARCH_INDEX)
+                            .source(record.value(), XContentType.JSON);
+                    IndexResponse response = openSearchClient.index(indexRequest, RequestOptions.DEFAULT);
+
+                    logger.info("Document " + response.getId() + " inserted into Opensearch");
+                } catch (Exception e) {
+                    logger.error(e.getMessage());
+                }
+            }
+        }
     }
 }

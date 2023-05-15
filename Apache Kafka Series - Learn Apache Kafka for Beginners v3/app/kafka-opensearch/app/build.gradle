@@ -56,14 +56,18 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+// Build a fat jar
 jar {
     duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
 
     manifest {
-        attributes 'Main-Class': 'kafka.basics.App'
+        attributes 'Main-Class': 'kafka_opensearch.App'
     }
 
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
+
+    // Remove metadata to prevent errors on signed library jars
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
 }

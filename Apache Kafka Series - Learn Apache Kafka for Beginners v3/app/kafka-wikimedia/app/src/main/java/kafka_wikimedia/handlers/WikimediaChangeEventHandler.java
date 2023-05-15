@@ -31,9 +31,9 @@ public class WikimediaChangeEventHandler implements BackgroundEventHandler {
 
     @Override
     public void onMessage(String event, MessageEvent messageEvent) throws Exception {
-        this.logger.info("Sending event data to producer: " + messageEvent.getData());
-
         ProducerRecord<String, String> record = new ProducerRecord<String,String>(this.kafkaTopic, messageEvent.getData());
+
+        this.logger.info("Sending event data to producer: " + record.topic());
 
         this.kafkaProducer.send(record);
     }

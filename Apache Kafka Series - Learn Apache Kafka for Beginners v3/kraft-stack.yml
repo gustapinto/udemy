@@ -22,6 +22,7 @@ services:
     working_dir: /app
     environment:
       KAFKA_BOOTSTRAP_SERVER: kafka:9092
+      OPENSEARCH_HOST: http://opensearch:9200
     networks:
       - app
 
