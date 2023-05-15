@@ -37,7 +37,7 @@ public class App {
         // Cria o indice caso ele não exista
         //
         // try (...) {} fecha todos os itens passados caso haja uma exceção
-        try {
+        try (openSearchClient; kafkaConsumer) {
             GetIndexRequest getIndexRequest = new GetIndexRequest(OPENSEARCH_INDEX);
             boolean indexAlreadyExists = openSearchClient.indices().exists(getIndexRequest, RequestOptions.DEFAULT);
 
@@ -46,31 +46,29 @@ public class App {
                 openSearchClient.indices().create(createIndexRequest, RequestOptions.DEFAULT);
                 logger.info("Created Opensearch index");
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            // logger.error(e.getMessage());
-        }
 
-        kafkaConsumer.subscribe(Arrays.asList(KAFKA_TOPIC));
+            kafkaConsumer.subscribe(Arrays.asList(KAFKA_TOPIC));
 
-        while (true) {
-            ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofSeconds(5));
-            Integer recordsCount = records.count();
+            while (true) {
+                ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofSeconds(5));
+                Integer recordsCount = records.count();
 
-            logger.info("Received " + recordsCount + " records");
+                logger.info("Received " + recordsCount + " records");
 
-            for (ConsumerRecord<String, String> record : records) {
-                System.out.println(record.value());
-                // try {
-                    IndexRequest indexRequest = new IndexRequest(OPENSEARCH_INDEX)
-                            .source(record.value(), XContentType.JSON);
-                    IndexResponse response = openSearchClient.index(indexRequest, RequestOptions.DEFAULT);
+                for (ConsumerRecord<String, String> record : records) {
+                    try {
+                        IndexRequest indexRequest = new IndexRequest(OPENSEARCH_INDEX)
+                                .source(record.value(), XContentType.JSON);
+                        IndexResponse response = openSearchClient.index(indexRequest, RequestOptions.DEFAULT);
 
-                    logger.info("Document " + response.getId() + " inserted into Opensearch");
-                // } catch (Exception e) {
-                //     logger.error(e.getMessage());
-                // }
+                        logger.info("Document " + response.getId() + " inserted into Opensearch");
+                    } catch (Exception e) {
+                        logger.error(e.getMessage());
+                    }
+                }
             }
+        } catch (Exception e) {
+            logger.error(e.getMessage());
         }
     }
 }
