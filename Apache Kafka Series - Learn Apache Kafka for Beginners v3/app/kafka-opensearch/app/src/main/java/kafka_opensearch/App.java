@@ -32,12 +32,12 @@ public class App {
 
     public static void main(String[] args) throws Exception {
         RestHighLevelClient openSearchClient = OpensearchRestHighLevelClientFactory.make(OPENSEARCH_HOST);
-        KafkaConsumer<String, String> kafkaConsumer = KafkaConsumerFactory.make(OPENSEARCH_HOST, "java-app");
+        KafkaConsumer<String, String> kafkaConsumer = KafkaConsumerFactory.make(KAFKA_BOOTSTRAP_SERVER, "java-app");
 
         // Cria o indice caso ele não exista
         //
         // try (...) {} fecha todos os itens passados caso haja uma exceção
-        try (openSearchClient) {
+        try {
             GetIndexRequest getIndexRequest = new GetIndexRequest(OPENSEARCH_INDEX);
             boolean indexAlreadyExists = openSearchClient.indices().exists(getIndexRequest, RequestOptions.DEFAULT);
 
@@ -47,27 +47,29 @@ public class App {
                 logger.info("Created Opensearch index");
             }
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            e.printStackTrace();
+            // logger.error(e.getMessage());
         }
 
         kafkaConsumer.subscribe(Arrays.asList(KAFKA_TOPIC));
 
         while (true) {
-            ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofSeconds(1));
+            ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofSeconds(5));
             Integer recordsCount = records.count();
 
             logger.info("Received " + recordsCount + " records");
 
             for (ConsumerRecord<String, String> record : records) {
-                try {
+                System.out.println(record.value());
+                // try {
                     IndexRequest indexRequest = new IndexRequest(OPENSEARCH_INDEX)
                             .source(record.value(), XContentType.JSON);
                     IndexResponse response = openSearchClient.index(indexRequest, RequestOptions.DEFAULT);
 
                     logger.info("Document " + response.getId() + " inserted into Opensearch");
-                } catch (Exception e) {
-                    logger.error(e.getMessage());
-                }
+                // } catch (Exception e) {
+                //     logger.error(e.getMessage());
+                // }
             }
         }
     }
