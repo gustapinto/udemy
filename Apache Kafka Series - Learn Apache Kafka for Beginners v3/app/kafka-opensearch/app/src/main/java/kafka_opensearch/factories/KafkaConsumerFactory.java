@@ -13,6 +13,7 @@ public class KafkaConsumerFactory {
         properties.setProperty("value.deserializer", StringDeserializer.class.getName());
         properties.setProperty("group.id", groupId);
         properties.setProperty("auto.offset.reset", "earliest");
+        properties.setProperty("enable.auto.commit", "false");
 
         return new KafkaConsumer<>(properties);
     }
