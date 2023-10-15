@@ -1,0 +1,25 @@
+// Sintaxe que será usada para parsear esse protobuf, pode ser:
+// - proto2
+// - proto3
+syntax = "proto3";
+
+package greet;
+
+option go_package = "grpc-code/greet/proto";
+
+// Define uma mensagem, que será usada nos services como corpo das
+// requisições ou respostas
+message GreetRequest {
+    // Define um campo, que é composto por:
+    //
+    // <label (opcional)> <tipo> <nome> = <numero do campo>
+    string first_name = 1;
+}
+
+message GreetResponse {
+    string result = 1;
+}
+
+service GreetService {
+    rpc Greet(GreetRequest) returns (GreetResponse);
+}
