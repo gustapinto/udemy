@@ -1,10 +1,9 @@
 package main
 
 import (
+	proto "grpc-code/proto/gen"
 	"log"
 	"net"
-
-	pb "grpc-code/proto/gen"
 
 	"google.golang.org/grpc"
 )
@@ -12,7 +11,7 @@ import (
 const ADDR = "0.0.0.0:50051"
 
 type Server struct {
-	pb.GreetServiceServer
+	proto.GreetServiceServer
 }
 
 func main() {
@@ -27,6 +26,9 @@ func main() {
 
 	// Cria um server gRPC
 	server := grpc.NewServer()
+
+	// Resgista o serviço gRPC
+	proto.RegisterGreetServiceServer(server, &Server{})
 
 	// Aponta o servidor gRPC para o listener TCP aberto
 	if err := server.Serve(listener); err != nil {

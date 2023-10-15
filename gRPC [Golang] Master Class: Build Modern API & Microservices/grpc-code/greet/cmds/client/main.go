@@ -1,6 +1,7 @@
 package main
 
 import (
+	proto "grpc-code/proto/gen"
 	"log"
 
 	"google.golang.org/grpc"
@@ -19,4 +20,10 @@ func main() {
 	defer conn.Close()
 
 	log.Printf("Connected to gRPC Server at %s", SERVER_ADDR)
+
+	// Cria um novo cliente para o greet service
+	client := proto.NewGreetServiceClient(conn)
+
+	DoGreet(client)
+	DoGreetManyTimes(client)
 }
