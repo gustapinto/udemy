@@ -4,25 +4,20 @@ package sum;
 
 option go_package = "calculator/proto";
 
-message SumRequest {
-    int64 x = 1;
-    int64 y = 2;
-}
-
-message SumResponse {
-    int64 result = 1;
-}
-
-message PrimesRequest {
-    int64 number = 1;
-}
-
-message PrimesResponse {
-    int64 result = 1;
-}
+import "sum.proto";
+import "primes.proto";
+import "avg.proto";
+import "max.proto";
+import "sqrt.proto";
 
 service CalculatorService {
     rpc Sum(SumRequest) returns (SumResponse);
 
     rpc Primes(PrimesRequest) returns (stream PrimesResponse);
+
+    rpc Avg(stream AvgRequest) returns (AvgResponse);
+
+    rpc Max(stream MaxRequest) returns (stream MaxResponse);
+
+    rpc Sqrt(SqrtRequest) returns (SqrtResponse);
 }

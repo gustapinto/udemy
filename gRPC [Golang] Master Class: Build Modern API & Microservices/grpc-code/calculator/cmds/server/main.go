@@ -25,7 +25,7 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 
-	proto.RegisterCalculatorServiceServer(grpcServer, &servers.CalculatorServer{})
+	proto.RegisterCalculatorServiceServer(grpcServer, &servers.Calculator{})
 
 	log.Println("Registered CalculatorService")
 

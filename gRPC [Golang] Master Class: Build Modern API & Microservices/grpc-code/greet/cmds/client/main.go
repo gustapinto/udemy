@@ -26,4 +26,7 @@ func main() {
 
 	DoGreet(client)
 	DoGreetManyTimes(client)
+	DoLongGreet(client)
+	DoGreetEveryone(client)
+	DoGreetWithDeadline(client)
 }
