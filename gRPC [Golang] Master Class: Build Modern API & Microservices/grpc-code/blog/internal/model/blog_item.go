@@ -21,3 +21,9 @@ func (b BlogItem) ToProtoBlog() *proto.Blog {
 		Content:  b.Content,
 	}
 }
+
+func (b BlogItem) ToProtoBlogID() *proto.BlogId {
+	return &proto.BlogId{
+		Id: b.ID.Hex(),
+	}
+}
